@@ -13,9 +13,10 @@
  *******************************************************************/
 static void usart_cfg(USART_TypeDef *usart)
 {
-   /* Configure and enable USART2 */
-   usart->BRR = 434; // 115200 baud @ 50 MHz APB1 clock and 16x oversampling
-   usart->CR1 |= USART_CR1_UE | USART_CR1_TE; // USART enable and transmitter enable
+   /* Configure and enable USARTx */
+   //usart->BRR = 365; // 115200 baud @ 42 MHz APB1 clock and 16x oversampling
+   usart->BRR = 69; // 115200 baud @ 42 MHz APB1 clock and 16x oversampling
+   usart->CR1 |= (USART_CR1_UE | USART_CR1_TE); // USART enable and transmitter enable
    usart->CR2 |= USART_CR2_STOP_1; // 1 stop bit
 
    // Dummy write, because the first byte seems to always be dropped
@@ -44,21 +45,21 @@ void usart_init(USART_TypeDef *usart)
    tmp_reg = RCC->APB1ENR;
    tmp_reg = RCC->APB1ENR;
 
-  /* Enable GPIOA clock*/
-  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+   /* Enable GPIOA clock*/
+   RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
    /* delay for 2 reads after enabling the clock  due to errata */
-  tmp_reg = RCC->AHB1ENR;
-  tmp_reg = RCC->AHB1ENR;
-
-   /* Set PA2 and PA3 GPIO pins to "alternate" function mode
-      Specifically
-      PA2 ------> USART2_TX
-      PA3 ------> USART2_RX
-   */
+   tmp_reg = RCC->AHB1ENR;
+   tmp_reg = RCC->AHB1ENR;
 
    /* Set the GPIO pins PA2 and PA3 (MODE2 and MODE3 respectively) to alternate modes */
    GPIOA->MODER &= ~(GPIO_MODER_MODE2_Msk | GPIO_MODER_MODE3_Msk);
    GPIOA->MODER |=  (0b10 << GPIO_MODER_MODE2_Pos) | (0b10 << GPIO_MODER_MODE3_Pos);
+
+   /* Clear output types for PA2 and PA3 setting the type to push-pull */
+   GPIOA->OTYPER  &= ~(GPIO_OTYPER_OT2 | GPIO_OTYPER_OT3);
+
+   /* Set GPIOA PA2 and PA3 to low speed */
+   GPIOA->OSPEEDR &= ~(GPIO_OSPEEDR_OSPEED2_Msk | GPIO_OSPEEDR_OSPEED3_Msk);
 
    /* USART2 is AF7 (GPIO Alternate Function Register). 8.3.2 tells us AF7 is USART2 for these pins */
    GPIOA->AFR[0] &= ~(GPIO_AFRL_AFRL2 | GPIO_AFRL_AFRL3);
@@ -80,6 +81,6 @@ void usart_init(USART_TypeDef *usart)
 void usart_write(USART_TypeDef *usart, char tx_char)
 {
    /* send a single 8 bit ASCII character */
-   usart->DR = 0x48;
+   usart->DR = tx_char;
    while (!(usart->SR & USART_SR_TC)); // wait until transmission complete
 }

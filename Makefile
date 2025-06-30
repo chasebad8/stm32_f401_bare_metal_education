@@ -13,7 +13,8 @@ CFLAGS=-mcpu=cortex-m4 -mthumb -nostdlib
 CPPFLAGS=-DSTM32F401xE \
 			-Ivendor/CMSIS/Device/ST/STM32F4/Include \
 			-Ivendor/CMSIS/CMSIS/Core/Include \
-			-Idrivers/usart/include
+			-Idrivers/usart/include \
+			-Idrivers/rcc/include
 
 #Linker script file name
 LINKER_FILE=linker_script.ld
@@ -31,7 +32,7 @@ PROGRAMMER_FLAGS = -f interface/stlink-v2-1.cfg -f target/stm32f4x.cfg
 all: $(BINARY)
 
 #Linking the object files to create the final binary
-$(BINARY): main.o startup.o system_stm32f4xx.o usart.o
+$(BINARY): main.o startup.o system_stm32f4xx.o usart.o rcc.o
 	$(info !!! Run export PATH="/usr/share/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin:$PATH" to config terminal !!!)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ -o $(BINARY)
 
@@ -49,6 +50,9 @@ system_stm32f4xx.o: vendor/CMSIS/Device/ST/STM32F4/Source/Templates/system_stm32
 
 usart.o: drivers/usart/src/usart.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) drivers/usart/src/usart.c -c
+
+rcc.o: drivers/rcc/src/rcc.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) drivers/rcc/src/rcc.c -c
 
 # Clean up the generated object files and binary
 .PHONY: clean

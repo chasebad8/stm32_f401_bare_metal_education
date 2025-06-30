@@ -1,5 +1,7 @@
 #include <stdint.h>
+#include "stm32f4xx.h"
 #include "usart.h"
+#include "rcc.h"
 
 #define LED_PIN 5
 
@@ -8,6 +10,9 @@ void main(void)
   /* Initialize USART */
   usart_init(USART2);
 
+  //rcc_init();
+
+  /* initialize GPIOA PA5 (Onboard LED) */
   RCC->AHB1ENR |= (1 << RCC_AHB1ENR_GPIOAEN_Pos);
 
   // do two dummy reads after enabling the peripheral clock, as per the errata
@@ -16,6 +21,8 @@ void main(void)
   dummy = RCC->AHB1ENR;
 
   GPIOA->MODER |= (1 << GPIO_MODER_MODER5_Pos);
+
+
 
   while(1)
   {
