@@ -32,7 +32,7 @@ PROGRAMMER_FLAGS = -f interface/stlink-v2-1.cfg -f target/stm32f4x.cfg
 all: $(BINARY)
 
 #Linking the object files to create the final binary
-$(BINARY): main.o startup.o system_stm32f4xx.o usart.o rcc.o
+$(BINARY): main.o startup.o system_stm32f4xx.o usart.o rcc.o gpio.o
 	$(info !!! Run export PATH="/usr/share/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin:$PATH" to config terminal !!!)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ -o $(BINARY)
 
@@ -53,6 +53,9 @@ usart.o: drivers/usart/src/usart.c
 
 rcc.o: drivers/rcc/src/rcc.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) drivers/rcc/src/rcc.c -c
+
+gpio.o: drivers/gpio/src/gpio.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) drivers/gpio/src/gpio.c -c
 
 # Clean up the generated object files and binary
 .PHONY: clean

@@ -1,12 +1,29 @@
 #include <stdint.h>
 #include "stm32f4xx.h"
 #include "usart.h"
+#include "gpio.h"
 #include "rcc.h"
 
 #define LED_PIN 5
 
 void main(void)
 {
+
+   /* Initialize all GPIO peripheral clocks */
+   RCC_GPIOA_CLK_ENABLE();
+   RCC_GPIOB_CLK_ENABLE();
+   RCC_GPIOC_CLK_ENABLE();
+   RCC_GPIOH_CLK_ENABLE();
+
+  gpio_init_cfg_t led_cfg = {
+    .pin = LED_PIN,
+    .mode  = GPIO_MODE_OUTPUT,
+    .pull  = GPIO_PULL_NONE,
+    .speed = GPIO_SPEED_HIGH,
+    .otype = GPIO_OTYPE_PP,
+    .alt_func = 0
+  };
+
   /* Initialize USART */
   usart_init(USART2);
 
