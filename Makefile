@@ -5,7 +5,7 @@ CC=arm-none-eabi-gcc
 # -mcpu=cortex-m4: Target Cortex-M4 architecture
 # -mthumb: Generate Thumb instructions (16 bit instructions for ARM Cortex-M instead of usual 32 bit)
 # -nostdlib: Do not use standard libraries,
-CFLAGS=-mcpu=cortex-m4 -mthumb -nostdlib
+CFLAGS=-mcpu=cortex-m4 -mthumb -nostdlib -g
 
 #Preprocessor flags
 # -DSTM32F401xE: Define the STM32F401xE series as the target
@@ -14,7 +14,8 @@ CPPFLAGS=-DSTM32F401xE \
 			-Ivendor/CMSIS/Device/ST/STM32F4/Include \
 			-Ivendor/CMSIS/CMSIS/Core/Include \
 			-Idrivers/usart/include \
-			-Idrivers/rcc/include
+			-Idrivers/rcc/include \
+			-Idrivers/gpio/include
 
 #Linker script file name
 LINKER_FILE=linker_script.ld
