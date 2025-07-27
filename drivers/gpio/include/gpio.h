@@ -19,6 +19,8 @@
 #define GPIO_AFR_MASK         (0xF)
 #define GPIO_AFR_BIT_MULT     (0x4)
 
+#define GPIO_PIN_MASK(gpio_pin) (1U << (gpio_pin))
+
 // typedef enum
 // {
 //    GPIO_PIN_0  = (1U << 0),  // Pin 0
@@ -40,6 +42,12 @@
 
 //    GPIO_PIN_MAX // Maximum pin value
 // }  gpio_pin_e;
+
+typedef enum
+{
+  GPIO_PIN_CLEAR = 0,
+  GPIO_PIN_SET
+} gpio_pin_state_e;
 
 typedef enum
 {
@@ -68,7 +76,9 @@ typedef enum
    GPIO_MODE_INPUT     = 0b00, // Input mode
    GPIO_MODE_OUTPUT    = 0b01, // Output mode/.
    GPIO_MODE_ALTERNATE = 0b10, // Alternate function mode
-   GPIO_MODE_ANALOG    = 0b11  // Analog mode
+   GPIO_MODE_ANALOG    = 0b11,  // Analog mode
+
+   GPIO_MODE_MAX
 } gpio_mode_e;
 
 typedef enum
@@ -128,5 +138,48 @@ typedef struct
  *
  *******************************************************************/
 void gpio_init(GPIO_TypeDef *gpio_p, gpio_init_cfg_t *gpio_cfg);
+
+/*******************************************************************
+ * @name   gpio_read_pin
+ *
+ * @brief  Read from a GPIO pin.
+ *
+ * @param  gpio_p: pointer to the selectec GPIO peripheral
+ *                 (e.g. GPIOA, GPIOB, etc.)
+ * @param  gpio_pin: GPIO pin number (e.g., GPIO_PIN_0, GPIO_PIN_1, etc.)
+ *
+ * @return gpio_pin_state_e GPIO_PIN_SET (1) or GPIO_PIN_CLEAR (0)
+ *
+ *******************************************************************/
+gpio_pin_state_e gpio_read_pin(GPIO_TypeDef *gpio_p, gpio_pin_e gpio_pin);
+
+/*******************************************************************
+ * @name   gpio_write_pin
+ *
+ * @brief  Write to a GPIO pin.
+ *
+ * @param  gpio_p: pointer to the selectec GPIO peripheral
+ *                 (e.g. GPIOA, GPIOB, etc.)
+ * @param  gpio_pin: GPIO pin number (e.g., GPIO_PIN_0, GPIO_PIN_1, etc.)
+ * @param  state:    GPIO pin state (GPIO_PIN_SET or GPIO_PIN_CLEAR)
+ *
+ * @return None
+ *
+ *******************************************************************/
+void gpio_write_pin(GPIO_TypeDef *gpio_p, gpio_pin_e gpio_pin, gpio_pin_state_e state);
+
+/*******************************************************************
+ * @name   gpio_toggle_pin
+ *
+ * @brief  Toggle a GPIO pin.
+ *
+ * @param  gpio_p: pointer to the selectec GPIO peripheral
+ *                 (e.g. GPIOA, GPIOB, etc.)
+ * @param  gpio_pin: GPIO pin number (e.g., GPIO_PIN_0, GPIO_PIN_1, etc.)
+ *
+ * @return None
+ *
+ *******************************************************************/
+void gpio_toggle_pin(GPIO_TypeDef *gpio_p, gpio_pin_e gpio_pin);
 
 #endif

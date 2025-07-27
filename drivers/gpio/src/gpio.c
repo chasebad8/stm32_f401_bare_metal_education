@@ -13,13 +13,11 @@
  *******************************************************************/
 static bool gpio_validate_cfg(gpio_init_cfg_t *gpio_cfg)
 {
-   if((gpio_cfg->pin <  GPIO_PIN_0) ||
-      (gpio_cfg->pin >= GPIO_PIN_MAX))
+   if(gpio_cfg->pin >= GPIO_PIN_MAX)
    {
       return false;
    }
-   else if((gpio_cfg->mode <  GPIO_MODE_INPUT) ||
-           (gpio_cfg->mode >= GPIO_MODE_ANALOG))
+   else if(gpio_cfg->mode >= GPIO_MODE_MAX)
    {
       return false;
    }
@@ -94,4 +92,86 @@ void gpio_init(GPIO_TypeDef *gpio_p, gpio_init_cfg_t *gpio_cfg)
             return; // Invalid mode
       }
    }
+}
+
+/*******************************************************************
+ * @name   gpio_read_pin
+ *
+ * @brief  Read from a GPIO pin.
+ *
+ * @param  gpio_p: pointer to the selectec GPIO peripheral
+ *                 (e.g. GPIOA, GPIOB, etc.)
+ * @param  gpio_pin: GPIO pin number (e.g., GPIO_PIN_0, GPIO_PIN_1, etc.)
+ *
+ * @return gpio_pin_state_e GPIO_PIN_SET (1) or GPIO_PIN_CLEAR (0)
+ *
+ *******************************************************************/
+gpio_pin_state_e gpio_read_pin(GPIO_TypeDef *gpio_p, gpio_pin_e gpio_pin)
+{
+   if((gpio_p == NULL) ||
+      (gpio_pin > GPIO_PIN_MAX))
+   {
+      return GPIO_PIN_CLEAR;
+   }
+   else
+   {
+      return ((gpio_p->IDR) & (1 << gpio_pin));
+   }
+}
+
+/*******************************************************************
+ * @name   gpio_write_pin
+ *
+ * @brief  Write to a GPIO pin.
+ *
+ * @param  gpio_p: pointer to the selectec GPIO peripheral
+ *                 (e.g. GPIOA, GPIOB, etc.)
+ * @param  gpio_pin: GPIO pin number (e.g., GPIO_PIN_0, GPIO_PIN_1, etc.)
+ * @param  state:    GPIO pin state (GPIO_PIN_SET or GPIO_PIN_CLEAR)
+ *
+ * @return None
+ *
+ *******************************************************************/
+void gpio_write_pin(GPIO_TypeDef *gpio_p, gpio_pin_e gpio_pin, gpio_pin_state_e state)
+{
+   if((gpio_p == NULL) ||
+      (gpio_pin > GPIO_PIN_MAX))
+   {
+      return;
+   }
+   else if(state == GPIO_PIN_SET)
+   {
+      /* The BSRR reg least significant 16 bits is a set */
+      gpio_p->BSRR = gpio_pin;
+   }
+   else if(state == GPIO_PIN_CLEAR)
+   {
+      /* The BSRR reg most significant 16 bits is a clear. (it will clear lsb bits) */
+      gpio_p->BSRR = (gpio_pin << 16);
+   }
+}
+
+/*******************************************************************
+ * @name   gpio_toggle_pin
+ *
+ * @brief  Toggle a GPIO pin.
+ *
+ * @param  gpio_p: pointer to the selectec GPIO peripheral
+ *                 (e.g. GPIOA, GPIOB, etc.)
+ * @param  gpio_pin: GPIO pin number (e.g., GPIO_PIN_0, GPIO_PIN_1, etc.)
+ *
+ * @return None
+ *
+ *******************************************************************/
+void gpio_toggle_pin(GPIO_TypeDef *gpio_p, gpio_pin_e gpio_pin)
+{
+   uint32_t odr;
+
+   /* read Output Data Register */
+   odr = gpio_p->ODR;
+
+   /* when odr is 1 BSSR ms16b will be 1 and ls16b will be 0.
+      since we want to toggle, flip these bits with whatever their
+      current value is. */
+   gpio_p->BSRR = ((odr & GPIO_PIN_MASK(gpio_pin)) << 16) | (~odr & GPIO_PIN_MASK(gpio_pin));
 }

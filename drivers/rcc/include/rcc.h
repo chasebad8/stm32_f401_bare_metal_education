@@ -9,24 +9,28 @@
                                     SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOAEN); \
                                     uint32_t tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOAEN); \
                                     tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOAEN); \
+                                    (void)tmpreg; \
                                  } while(0U)
 
 #define RCC_GPIOB_CLK_ENABLE()  do { \
                                     SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOBEN); \
                                     uint32_t tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOBEN); \
                                     tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOBEN); \
+                                    (void)tmpreg; \
                                  } while(0U)
 
 #define RCC_GPIOC_CLK_ENABLE()  do { \
                                     SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOCEN); \
                                     uint32_t tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOCEN); \
                                     tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOCEN); \
+                                    (void)tmpreg; \
                                  } while(0U)
 
 #define RCC_GPIOH_CLK_ENABLE()  do { \
                                     SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOHEN); \
                                     uint32_t tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOHEN); \
                                     tmpreg = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOHEN); \
+                                    (void)tmpreg; \
                                  } while(0U)
 
 /**

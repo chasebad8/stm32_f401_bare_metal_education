@@ -5,7 +5,7 @@ CC=arm-none-eabi-gcc
 # -mcpu=cortex-m4: Target Cortex-M4 architecture
 # -mthumb: Generate Thumb instructions (16 bit instructions for ARM Cortex-M instead of usual 32 bit)
 # -nostdlib: Do not use standard libraries,
-CFLAGS=-mcpu=cortex-m4 -mthumb -nostdlib -g
+CFLAGS=-mcpu=cortex-m4 -mthumb -nostdlib -g -Wall -Wextra -Werror
 
 #Preprocessor flags
 # -DSTM32F401xE: Define the STM32F401xE series as the target
@@ -34,11 +34,11 @@ all: $(BINARY)
 
 #Linking the object files to create the final binary
 $(BINARY): main.o startup.o system_stm32f4xx.o usart.o rcc.o gpio.o
-	$(info !!! Run export PATH="/usr/share/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin:$PATH" to config terminal !!!)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ -o $(BINARY)
 
 #main.o object file for main.c
 main.o: main.c
+	$(info !!! Run export PATH="/usr/share/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin:$PATH" to config terminal !!!)
 	$(CC) $(CFLAGS) $(CPPFLAGS) main.c -c
 
 #startup.o object file for startup.c

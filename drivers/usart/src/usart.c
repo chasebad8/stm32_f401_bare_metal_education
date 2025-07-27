@@ -44,12 +44,15 @@ void usart_init(USART_TypeDef *usart)
    volatile uint32_t tmp_reg;
    tmp_reg = RCC->APB1ENR;
    tmp_reg = RCC->APB1ENR;
+   /* make gcc unused-but-set-variable happy */
+   (void)tmp_reg;
 
    /* Enable GPIOA clock*/
    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
    /* delay for 2 reads after enabling the clock  due to errata */
    tmp_reg = RCC->AHB1ENR;
    tmp_reg = RCC->AHB1ENR;
+   (void)tmp_reg;
 
    /* Set the GPIO pins PA2 and PA3 (MODE2 and MODE3 respectively) to alternate modes */
    GPIOA->MODER &= ~(GPIO_MODER_MODE2_Msk | GPIO_MODER_MODE3_Msk);

@@ -6,7 +6,7 @@
 
 #define LED_PIN GPIO_PIN_5
 
-void main(void)
+int main(void)
 {
 
    /* Initialize all GPIO peripheral clocks */
@@ -33,7 +33,17 @@ void main(void)
 
   while(1)
   {
-    GPIOA->ODR ^= (1 << LED_PIN);
+    //GPIOA->ODR ^= (1 << LED_PIN);
+    gpio_toggle_pin(GPIOA, LED_PIN);
+
+    for (uint32_t i = 0; i < 50000; i++);
+
+    gpio_toggle_pin(GPIOA, LED_PIN);
+
+    for (uint32_t i = 0; i < 50000; i++);
+
+    gpio_toggle_pin(GPIOA, LED_PIN);
+
     // usart_write(USART2, 'H');
     // usart_write(USART2, 'e');
     // usart_write(USART2, 'l');
@@ -48,4 +58,6 @@ void main(void)
     // usart_write(USART2, '\n');
     for (uint32_t i = 0; i < 1000000; i++);
   }
+
+  return 0;
 }
