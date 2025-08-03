@@ -33,18 +33,52 @@
                                     (void)tmpreg; \
                                  } while(0U)
 
+/*******************************************************************
+ *                RCC OSCILLATOR CONFIGURATION                     *
+ *******************************************************************/
+typedef enum
+{
+   RCC_OSC_HSE = 0, // High Speed External oscillator
+   RCC_OSC_HSI,     // High Speed Internal oscillator
+   RCC_OSC_LSE,     // Low  Speed External oscillator
+   RCC_OSC_LSI      // Low  Speed Internal oscillator
+
+} rcc_osc_e;
+
+typedef enum
+{
+   RCC_OSC_OFF = 0, // Oscillator is OFF
+   RCC_OSC_ON,      // Oscillator is ON
+   RCC_OSC_BYPASS   // Oscillator is BYPASS
+
+} rcc_osc_state_e;
+
 /**
   * @brief  RCC Internal/External Oscillator (HSE, HSI, LSE and LSI) config struct
   *
-  *         HSE: High Speed External oscillator
-  *         HSI: High Speed Internal oscillator
-  *         LSE: Low  Speed External oscillator
-  *         LSI: Low  Speed Internal oscillator
+  * @param  osc_type:  Oscillator type: 0 for HSE, 1 for HSI, 2 for LSE, 3 for LSI
+  * @param  state:     Oscillator state: 0 for OFF, 1 for ON, 2 for BYPASS
+  *
  **/
 typedef struct
 {
-   uint8_t osc_type;  // Oscillator type: 0 for HSE, 1 for HSI, 2 for LSE, 3 for LSI
+   rcc_osc_e       osc_type;
+   rcc_osc_state_e state;
 
 } rcc_osc_cfg_t;
+
+/************************************************************
+ *                RCC PLL CONFIGURATION                     *
+ ************************************************************/
+typedef struct
+{
+   uint8_t  pll_src; // PLL source clock: 0 for HSI, 1 for HSE
+
+   uint8_t  pll_m; // Division factor for PLL VCO input clock
+   uint16_t pll_n; // Multiplication factor for PLL VCO output clock
+   uint8_t  pll_p; // Division factor for main system clock (SYSCLK) from PLL VCO output clock
+   uint8_t  pll_q; // Division factor for USB OTG FS, SDIO and RNG clocks from PLL VCO output clock
+
+} rcc_pll_cfg_t;
 
 #endif

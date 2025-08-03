@@ -15,7 +15,8 @@ CPPFLAGS=-DSTM32F401xE \
 			-Ivendor/CMSIS/CMSIS/Core/Include \
 			-Idrivers/usart/include \
 			-Idrivers/rcc/include \
-			-Idrivers/gpio/include
+			-Idrivers/gpio/include \
+			-I.
 
 #Linker script file name
 LINKER_FILE=linker_script.ld

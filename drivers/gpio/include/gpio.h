@@ -3,12 +3,6 @@
 #include <stdint.h>
 #include "stm32f4xx.h"
 
-/* Needs to move eventually */
-#define NULL ((void *)0)
-#define bool _Bool
-#define true 1
-#define false 0
-
 #define GPIO_MODE_MASK        (0b11)
 #define GPIO_MODE_BIT_MULT    (0x2)
 #define GPIO_PUPD_MASK        (0b11)
@@ -138,6 +132,20 @@ typedef struct
  *
  *******************************************************************/
 void gpio_init(GPIO_TypeDef *gpio_p, gpio_init_cfg_t *gpio_cfg);
+
+/*******************************************************************
+ * @name   gpio_deinit
+ *
+ * @brief  Deinitizalize GPIO. Set values back to defaults.
+ *
+ * @param  gpio_p: pointer to the selectec GPIO peripheral
+ *                 (e.g. GPIOA, GPIOB, etc.)
+ * @param  gpio_pin: GPIO pin number (e.g., GPIO_PIN_0, GPIO_PIN_1, etc.)
+ *
+ * @return None
+ *
+ *******************************************************************/
+void gpio_deinit(GPIO_TypeDef *gpio_p, gpio_pin_e gpio_pin);
 
 /*******************************************************************
  * @name   gpio_read_pin

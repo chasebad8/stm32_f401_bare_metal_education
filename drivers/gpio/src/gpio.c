@@ -1,4 +1,5 @@
 #include "gpio.h"
+#include "std_types.h"
 
 /*******************************************************************
  * @name   gpio_validate_cfg
@@ -71,8 +72,8 @@ void gpio_init(GPIO_TypeDef *gpio_p, gpio_init_cfg_t *gpio_cfg)
             gpio_p->OTYPER |= (gpio_cfg->pull << gpio_cfg->pin);
 
             /* configure the output speed registor */
-            gpio_p->PUPDR &= ~(GPIO_OSPEEED_MASK << (gpio_cfg->pin * GPIO_OSPEEED_BIT_MULT));
-            gpio_p->PUPDR |= ((gpio_cfg->speed & GPIO_OSPEEED_MASK) << (gpio_cfg->pin * GPIO_OSPEEED_BIT_MULT));
+            gpio_p->OSPEEDR &= ~(GPIO_OSPEEED_MASK << (gpio_cfg->pin * GPIO_OSPEEED_BIT_MULT));
+            gpio_p->OSPEEDR |= ((gpio_cfg->speed & GPIO_OSPEEED_MASK) << (gpio_cfg->pin * GPIO_OSPEEED_BIT_MULT));
 
             if(gpio_cfg->mode == GPIO_MODE_ALTERNATE)
             {
@@ -91,6 +92,36 @@ void gpio_init(GPIO_TypeDef *gpio_p, gpio_init_cfg_t *gpio_cfg)
          default:
             return; // Invalid mode
       }
+   }
+}
+
+/*******************************************************************
+ * @name   gpio_deinit
+ *
+ * @brief  Deinitizalize GPIO. Set values back to defaults.
+ *
+ * @param  gpio_p: pointer to the selectec GPIO peripheral
+ *                 (e.g. GPIOA, GPIOB, etc.)
+ * @param  gpio_pin: GPIO pin number (e.g., GPIO_PIN_0, GPIO_PIN_1, etc.)
+ *
+ * @return None
+ *
+ *******************************************************************/
+void gpio_deinit(GPIO_TypeDef *gpio_p, gpio_pin_e gpio_pin)
+{
+   if((gpio_p == NULL) ||
+      (gpio_pin > GPIO_PIN_MAX))
+   {
+      return;
+   }
+   else
+   {
+      /* Reset all fields to their defaults (0) for specific pin */
+      gpio_p->MODER   &= ~(GPIO_MODE_MASK    << (gpio_pin * GPIO_MODE_BIT_MULT));
+      gpio_p->OSPEEDR &= ~(GPIO_OSPEEED_MASK << (gpio_pin * GPIO_OSPEEED_BIT_MULT));
+      gpio_p->OTYPER  &= ~(GPIO_OTYPE_MASK   << (gpio_pin));
+      gpio_p->PUPDR   &= ~(GPIO_PUPD_MASK    << (gpio_pin * GPIO_PUPD_BIT_MULT));
+      gpio_p->AFR[gpio_pin / 8] &= ~(GPIO_AFR_MASK << ((gpio_pin % 8) * GPIO_AFR_BIT_MULT));
    }
 }
 
