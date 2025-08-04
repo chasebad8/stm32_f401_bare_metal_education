@@ -24,12 +24,45 @@ int main(void)
     .alt_func = 0
   };
 
+  rcc_osc_cfg_t osc_cfg = {
+    .osc_type = RCC_OSC_HSE,
+    .state    = RCC_OSC_ON
+  };
+
+  // rcc_pll_cfg_t pll_cfg = {
+  //   .pll_src   = RCC_PLL_SRC_HSE,
+  //   .pll_state = RCC_PLL_ON,
+  //   .pll_m = 8,
+  //   .pll_n = 128,
+  //   .pll_p = 4,
+  //   .pll_q = 7
+  // };
+
+  rcc_clock_cfg_t clk_cfg = {
+    .clock_type  = RCC_CLOCK_SYSCLK,
+    .sys_clk_src = RCC_SYSCLK_SRC_HSE
+  };
 
   /* initialize GPIOA PIN 5 (On board LED) */
   gpio_init(GPIOA, &led_cfg);
 
+  /* initialize the HSE oscillator */
+  rcc_oscillator_init(&osc_cfg);
+
+  //while(RCC_GET_HSE_READY_FLAG == RESET) {};
+
+  /* initialize the PLL */
+  //rcc_pll_init(&pll_cfg);
+
+  for (uint32_t i = 0; i < 1000000; i++);
+
+  /* set the sys clock to PLL */
+  rcc_clock_init(&clk_cfg);
+
+  /* Set the system clock to use PLL as source */
   /* Initialize USART */
   //usart_init(USART2);
+  for (uint32_t i = 0; i < 1000000; i++);
 
   while(1)
   {
