@@ -26,7 +26,7 @@ int main(void)
 
   rcc_osc_cfg_t osc_cfg = {
     .osc_type = RCC_OSC_HSE,
-    .state    = RCC_OSC_ON
+    .state    = RCC_OSC_BYPASS
   };
 
   // rcc_pll_cfg_t pll_cfg = {
