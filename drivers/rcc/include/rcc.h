@@ -2,6 +2,7 @@
 #define _RCC_H_
 #include <stdint.h>
 #include "stm32f4xx.h"
+#include "std_types.h"
 
 /* This was taken mostly from the HAL libraries, but I wanted to try out the
    do while macro. Without the do-while it wouldn't execute properly */
@@ -122,9 +123,9 @@ typedef enum
   *
   * @param  clock_type:   Clock type: 0 for SYSCLK, 1 for HCLK, 2 for PCLK1, 3 for PCLK2
   * @param  sys_clk_src:  System clock source: 0 for HSI, 1 for HSE, 2 for PLL
-  * @param  ahb_clk_div:  AHB clock division factor: 0 for SYSCLK, 1 for SYSCLK/2, 2 for SYSCLK/4, etc.
-  * @param  apb1_clk_div: APB1 clock division factor: 0 for HCLK, 1 for HCLK/2, 2 for HCLK/4, etc.
-  * @param  apb2_clk_div: APB2 clock division factor: 0 for HCLK, 1 for HCLK/2, 2 for HCLK/4, etc.
+  * @param  ahb_clk_div:  AHB clock division factor: divides sys clock to get hclk.
+  * @param  apb1_clk_div: APB1 clock division factor
+  * @param  apb2_clk_div: APB2 clock division factor
  **/
 typedef struct
 {
@@ -133,6 +134,7 @@ typedef struct
    uint8_t ahb_clk_div;
    uint8_t apb1_clk_div;
    uint8_t apb2_clk_div;
+   uint8_t flash_latency;
 
 } rcc_clock_cfg_t;
 
@@ -148,6 +150,18 @@ typedef struct
  *
  *******************************************************************/
 void rcc_oscillator_init(rcc_osc_cfg_t *osc_cfg);
+
+/*******************************************************************
+ * @name   rcc_pll_enable
+ *
+ * @brief  enable or disable the on chip PLL
+ *
+ * @param  pll_enable: true to enable, false to disable
+ *
+ * @return None
+ *
+ *******************************************************************/
+void rcc_pll_enable(bool pll_enable);
 
 /*******************************************************************
  * @name   rcc_pll_init

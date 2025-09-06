@@ -1,5 +1,4 @@
 #include "rcc.h"
-#include "std_types.h"
 
 /*******************************************************************
  * @name   rcc_oscillator_config_hse
@@ -206,6 +205,35 @@ void rcc_oscillator_init(rcc_osc_cfg_t *osc_cfg)
 }
 
 /*******************************************************************
+ * @name   rcc_pll_enable
+ *
+ * @brief  enable or disable the on chip PLL
+ *
+ * @param  pll_enable: true to enable, false to disable
+ *
+ * @return None
+ *
+ *******************************************************************/
+void rcc_pll_enable(bool pll_enable)
+{
+   if(pll_enable == true)
+   {
+      SET_BIT(RCC->CR, RCC_CR_PLLON);
+   }
+   else
+   {
+      CLEAR_BIT(RCC->CR, RCC_CR_PLLON);
+   }
+
+   /* TODO: Add a sys_tick timeout here !! */
+   /* wait until PLL is disabled */
+   //while(RCC_GET_PLL_READY_FLAG != RESET) {};
+   for (uint32_t i = 0; i < 1000000; i++);
+
+   return;
+}
+
+/*******************************************************************
  * @name   rcc_pll_init
  *
  * @brief  Configure the on chip PLL
@@ -230,27 +258,20 @@ void rcc_pll_init(rcc_pll_cfg_t *pll_cfg)
    else if(pll_cfg->pll_state == RCC_PLL_ON)
    {
       /* disable the PLL. The PLL cannot be modified while it is enabled. */
-      RCC->CR &= ~RCC_CR_PLLON;
+      rcc_pll_enable(false);
 
-      /* TODO: Add a sys_tick timeout here !! */
-      /* wait until PLL is disabled */
-      while(RCC_GET_PLL_READY_FLAG != RESET) {};
-
-      WRITE_REG(RCC->PLLCFGR, \
-                (pll_cfg->pll_src << RCC_PLLCFGR_PLLSRC_Pos) | \
-                (pll_cfg->pll_m   << RCC_PLLCFGR_PLLM_Pos)   | \
-                (pll_cfg->pll_n   << RCC_PLLCFGR_PLLN_Pos)   | \
-                (pll_cfg->pll_p   << RCC_PLLCFGR_PLLP_Pos)   | \
-                (pll_cfg->pll_q   << RCC_PLLCFGR_PLLQ_Pos));
+      WRITE_REG(RCC->PLLCFGR, ((pll_cfg->pll_src << RCC_PLLCFGR_PLLSRC_Pos) | \
+                               (pll_cfg->pll_m   << RCC_PLLCFGR_PLLM_Pos)   | \
+                               (pll_cfg->pll_n   << RCC_PLLCFGR_PLLN_Pos)   | \
+                               (pll_cfg->pll_p   << RCC_PLLCFGR_PLLP_Pos)   | \
+                               (pll_cfg->pll_q   << RCC_PLLCFGR_PLLQ_Pos)));
 
       /* re-enable PLL */
-      RCC->CR |= RCC_CR_PLLON;
-
-      while(RCC_GET_PLL_READY_FLAG == RESET) {};
+      rcc_pll_enable(true);
    }
    else /* RCC_PLL_OFF */
    {
-      RCC->CR &= ~RCC_CR_PLLON;
+      rcc_pll_enable(false);
 
       while(RCC_GET_PLL_READY_FLAG != RESET) {};
    }
@@ -261,10 +282,9 @@ void rcc_pll_init(rcc_pll_cfg_t *pll_cfg)
 /*******************************************************************
  * @name   rcc_clock_cfg_sys_clk
  *
- * @brief  Configure the specified clock
+ * @brief  Configure the system clock
  *
- * @param  osc_cfg: pointer to a rcc_osc_cfg_t structure that contains
- *                  the configuration information for the specified oscillator.
+ * @param  sys_clk_src: source of the system clock.
  *
  * @return None
  *
@@ -282,7 +302,35 @@ static void rcc_clock_cfg_sys_clk(rcc_sys_clk_src_e sys_clk_src)
    /* If the ready flag is set for the oscillator or PLL, we can set it as the sys clock */
    if(clk_ready_arr[sys_clk_src] == true)
    {
-      MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, sys_clk_arr[sys_clk_src]);
+      MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, (sys_clk_arr[sys_clk_src] << RCC_CFGR_SW_Pos));
+   }
+
+   return;
+}
+
+/*******************************************************************
+ * @name   rcc_clock_cfg_h_clk
+ *
+ * @brief  Configure the h clock. This is the CPU clock which is
+ *         derived from the sys clock and has an AHB prescaler.
+ *
+ * @param  osc_cfg: pointer to a rcc_osc_cfg_t structure that contains
+ *                  the configuration information for the specified oscillator.
+ *
+ * @return None
+ *
+ *******************************************************************/
+static void rcc_clock_cfg_h_clk(uint8_t ahb_clk_div)
+{
+   if((ahb_clk_div != RCC_CFGR_HPRE_DIV1)   &&
+      ((ahb_clk_div > RCC_CFGR_HPRE_DIV512) ||
+       (ahb_clk_div < RCC_CFGR_HPRE_DIV2)))
+   {
+      return; // Invalid division factor
+   }
+   else
+   {
+      MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, (ahb_clk_div << RCC_CFGR_HPRE_Pos));
    }
 
    return;
@@ -307,6 +355,13 @@ void rcc_clock_init(rcc_clock_cfg_t *clk_cfg)
    }
    else
    {
+      /* If increasing our flash latency wait states, assume it means the frequency
+         of the CPU clock (hclk) is being increased. Therefore change wait states now. */
+      if(READ_BIT(FLASH->ACR, FLASH_ACR_LATENCY) < clk_cfg->flash_latency)
+      {
+         MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, (clk_cfg->flash_latency << FLASH_ACR_LATENCY_Pos));
+      }
+
       switch(clk_cfg->clock_type)
       {
          case RCC_CLOCK_SYSCLK:
@@ -314,10 +369,19 @@ void rcc_clock_init(rcc_clock_cfg_t *clk_cfg)
             break;
 
          case RCC_CLOCK_HCLK:
+            rcc_clock_cfg_h_clk(clk_cfg->ahb_clk_div);
+            break;
+
          case RCC_CLOCK_PCLK1:
          case RCC_CLOCK_PCLK2:
          default:
             return;
+      }
+
+      /* If decreasing our flash lateny, assume CPU frequency is being lowered, change wait states last. */
+      if(READ_BIT(FLASH->ACR, FLASH_ACR_LATENCY) > clk_cfg->flash_latency)
+      {
+         MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, (clk_cfg->flash_latency << FLASH_ACR_LATENCY_Pos));
       }
    }
 
